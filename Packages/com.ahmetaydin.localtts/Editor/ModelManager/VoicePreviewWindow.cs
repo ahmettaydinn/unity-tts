@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using LocalTTS.Kokoro;
@@ -97,7 +98,7 @@ namespace LocalTTS.Editor
                 }
 
                 SynthesisResult result = await engine.SynthesizeAsync(text, voice.Voice);
-                PlayPreview(result.ToAudioClip("VoicePreview"));
+                PlayPreview(result);
                 status = $"{result.DurationSeconds:F1}s — {voice.DisplayName}";
             }
             catch (Exception e)
@@ -135,24 +136,33 @@ namespace LocalTTS.Editor
                 "No Kokoro model found — download one via LocalTTS → Model Manager.");
         }
 
-        /// <summary>Plays a clip in the editor via the internal AudioUtil (reflection).</summary>
-        private static void PlayPreview(AudioClip clip)
+        private static System.Diagnostics.Process previewProcess;
+
+        /// <summary>
+        /// Plays through the OS audio player (afplay on macOS, SoundPlayer on
+        /// Windows). Deliberately not the editor's internal preview API: that is
+        /// affected by the editor mute toggle and moved assemblies across Unity
+        /// versions — an audition tool should just always be audible.
+        /// </summary>
+        private static void PlayPreview(SynthesisResult result)
         {
-            var audioUtil = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
-            var play = audioUtil?.GetMethod("PlayPreviewClip",
-                BindingFlags.Static | BindingFlags.Public,
-                null, new[] { typeof(AudioClip), typeof(int), typeof(bool) }, null);
-            var stop = audioUtil?.GetMethod("StopAllPreviewClips",
-                BindingFlags.Static | BindingFlags.Public);
+            string path = Path.Combine(Path.GetTempPath(), "localtts-preview.wav");
+            WavWriter.Write(path, result.Samples, TTSSettings.OutputSampleRate);
 
-            if (play == null)
-            {
-                Debug.LogWarning("LocalTTS: editor audio preview unavailable in this Unity version.");
-                return;
-            }
+            try { previewProcess?.Kill(); } catch { /* already exited */ }
 
-            stop?.Invoke(null, null);
-            play.Invoke(null, new object[] { clip, 0, false });
+#if UNITY_EDITOR_OSX
+            previewProcess = System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo("afplay", $"\"{path}\"")
+                { UseShellExecute = false, CreateNoWindow = true });
+#elif UNITY_EDITOR_WIN
+            previewProcess = System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo("powershell",
+                    $"-NoProfile -WindowStyle Hidden -Command \"(New-Object Media.SoundPlayer '{path}').PlaySync()\"")
+                { UseShellExecute = false, CreateNoWindow = true });
+#else
+            EditorUtility.OpenWithDefaultApp(path);
+#endif
         }
     }
 }

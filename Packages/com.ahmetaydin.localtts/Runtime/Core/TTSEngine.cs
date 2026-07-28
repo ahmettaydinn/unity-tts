@@ -176,7 +176,10 @@ namespace LocalTTS
             LastMaxFrameStallMs = 0;
             LastScheduleFrames = 1;
 
-            if (settings.FrameBudgetMs > 0f)
+            // Frame-yielding requires a ticking player loop. In edit mode (editor
+            // tooling like Voice Preview) frames don't tick reliably and suspending
+            // mid-graph corrupts the worker's execution state — schedule in one shot.
+            if (settings.FrameBudgetMs > 0f && Application.isPlaying)
             {
                 // Dispatch the graph layer by layer, yielding to the next frame whenever
                 // this frame's scheduling budget is spent — no gameplay hitches.

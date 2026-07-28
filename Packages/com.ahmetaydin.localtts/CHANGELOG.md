@@ -4,6 +4,18 @@ All notable changes to this package are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-07-28
+
+### Fixed
+
+- Edit-mode synthesis (Voice Preview, editor tooling) corrupted the inference
+  worker's state: frame-budgeted scheduling suspended mid-graph without a ticking
+  player loop (`KeyNotFoundException` inside the worker). Frame-yielding now only
+  activates in play mode.
+- Voice Preview was silent: playback now goes through the OS audio player
+  (afplay / SoundPlayer) instead of Unity's internal editor preview API, which is
+  affected by the editor mute toggle and moved assemblies in Unity 6.5.
+
 ## [1.0.0] - 2026-07-28
 
 First release: fully local, license-clean text-to-speech for game characters.
