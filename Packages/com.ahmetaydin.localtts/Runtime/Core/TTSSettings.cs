@@ -38,6 +38,16 @@ namespace LocalTTS
         public TTSQuantization Quantization => quantization;
         public float DefaultSpeed => defaultSpeed;
 
+        public TTSSettings() { }
+
+        public TTSSettings(TTSBackend backend,
+            TTSQuantization quantization = TTSQuantization.Float16, float defaultSpeed = 1f)
+        {
+            this.backend = backend;
+            this.quantization = quantization;
+            this.defaultSpeed = defaultSpeed;
+        }
+
         public static TTSSettings Default => new TTSSettings();
     }
 }

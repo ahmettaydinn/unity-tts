@@ -8,6 +8,17 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Phase 2, English pipeline: `TTSEngine` — plain English text → speech, fully async
+  (background-thread G2P, awaitable GPU readback, backend warmup at creation).
+- `EnglishG2P`: 183k-word lexicon (misaki gold+silver, packed to a 1.3 MB gzipped
+  resource, every entry validated against the Kokoro vocab), voicing-aware possessive
+  and clitic suffix rules, acronym/unknown-word letter spelling, per-project
+  pronunciation overrides (`Lexicon.AddOverride`).
+- `TextNormalizer`: currency ($/£/€ with cents), percentages, decimals, ordinals,
+  large cardinals, common abbreviations, sentence splitting with prosody punctuation.
+- Golden-test suite (28 new tests). Measured: 13.9 s of audio from a 4-sentence
+  paragraph in ~2.0 s on CPU; engine cold start ~2.8 s including lexicon and warmup.
+
 - Phase 1 spike: Kokoro-82M runs end-to-end in Unity Inference Engine on CPU and GPU.
   `KokoroSynthesizer` (phonemes → 24 kHz waveform → AudioClip), `KokoroTokenizer` +
   generated vocab table, `KokoroVoice` style-embedding loader.
