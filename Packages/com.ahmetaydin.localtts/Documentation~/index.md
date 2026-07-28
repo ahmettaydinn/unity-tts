@@ -4,6 +4,9 @@ Fully local, on-device text-to-speech for game characters: Kokoro-82M on Unity
 Inference Engine. No cloud, no API keys, license-clean for commercial games
 (Apache-2.0 model, MIT package, no GPL anywhere in the chain).
 
+> New to the codebase? Read [architecture.md](architecture.md) — the design bets,
+> the pipeline, a layer-by-layer code tour, and the hard-won lessons.
+
 ## Quickstart (5 minutes)
 
 1. **Install** via Package Manager → *Install package from git URL*:
