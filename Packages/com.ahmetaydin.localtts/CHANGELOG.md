@@ -8,6 +8,18 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Phase 3, package UX:
+  - `TTSVoice` ScriptableObject voices; **LocalTTS → Model Manager** downloads the
+    model (3 quantization variants) and 29 English voices with pinned SHA-256
+    verification, auto-creating ready-to-assign voice assets.
+  - **LocalTTS → Voice Preview**: audition voices in-editor without play mode.
+  - `TTSEngineProvider` (scene-shared engine with warmup on Awake) and
+    `CharacterVoice` (per-character queue, `Interrupt()` barge-in, `LineStarted`/
+    `FinishedSpeaking` events, plays on the object's own AudioSource).
+  - `TTSEngine` now serializes concurrent requests FIFO instead of throwing.
+  - Samples: *Basic Speech* and *Dialogue Characters* (registered in package.json).
+  - Documentation~: quickstart, core API, runtime size table.
+
 - Phase 2, English pipeline: `TTSEngine` — plain English text → speech, fully async
   (background-thread G2P, awaitable GPU readback, backend warmup at creation).
 - `EnglishG2P`: 183k-word lexicon (misaki gold+silver, packed to a 1.3 MB gzipped

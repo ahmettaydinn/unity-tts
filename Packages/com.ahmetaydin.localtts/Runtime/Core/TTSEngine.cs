@@ -20,6 +20,8 @@ namespace LocalTTS
         private readonly Worker worker;
         private readonly EnglishG2P g2p;
         private readonly TTSSettings settings;
+        private readonly Queue<AwaitableCompletionSource> waiters =
+            new Queue<AwaitableCompletionSource>();
         private bool busy;
 
         public TTSSettings Settings => settings;
@@ -64,7 +66,10 @@ namespace LocalTTS
             return engine;
         }
 
-        /// <summary>Synthesizes English text. One request at a time per engine.</summary>
+        /// <summary>
+        /// Synthesizes English text. Concurrent calls are serviced strictly in FIFO
+        /// order — safe to call from many characters at once.
+        /// </summary>
         public async Awaitable<SynthesisResult> SynthesizeAsync(
             string text, KokoroVoice voice, float speed = 0f)
         {
@@ -75,11 +80,18 @@ namespace LocalTTS
 
             if (busy)
             {
-                throw new InvalidOperationException(
-                    "TTSEngine handles one request at a time; await the previous call first.");
+                // Wait for our turn; the finishing request hands ownership over
+                // directly (busy never drops to false in between), so no caller
+                // can jump the queue.
+                var turn = new AwaitableCompletionSource();
+                waiters.Enqueue(turn);
+                await turn.Awaitable;
+            }
+            else
+            {
+                busy = true;
             }
 
-            busy = true;
             try
             {
                 if (speed <= 0f)
@@ -123,7 +135,14 @@ namespace LocalTTS
             }
             finally
             {
-                busy = false;
+                if (waiters.Count > 0)
+                {
+                    waiters.Dequeue().SetResult(); // ownership passes to the next request
+                }
+                else
+                {
+                    busy = false;
+                }
             }
         }
 

@@ -1,0 +1,70 @@
+namespace LocalTTS.Editor
+{
+    /// <summary>
+    /// Pinned download catalog for the Kokoro-82M v1.0 ONNX release on Hugging Face
+    /// (onnx-community/Kokoro-82M-v1.0-ONNX). Sizes and SHA-256 hashes come from the
+    /// repository's LFS metadata; every download is verified against them.
+    /// </summary>
+    public static class KokoroCatalog
+    {
+        public const string BaseUrl =
+            "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/";
+
+        public sealed class Entry
+        {
+            public readonly string Name;      // quantization name or voice id
+            public readonly string RepoPath;  // path inside the HF repo
+            public readonly long SizeBytes;
+            public readonly string Sha256;
+            public readonly string Note;      // human description
+
+            public Entry(string name, string repoPath, long sizeBytes, string sha256, string note)
+            {
+                Name = name; RepoPath = repoPath; SizeBytes = sizeBytes; Sha256 = sha256; Note = note;
+            }
+
+            public string Url => BaseUrl + RepoPath;
+        }
+
+        /// <summary>Model variants, by TTSQuantization name.</summary>
+        public static readonly Entry[] Models =
+        {
+            new Entry("Float32", "onnx/model.onnx", 325532232L, "8fbea51ea711f2af382e88c833d9e288c6dc82ce5e98421ea61c058ce21a34cb", "Verified. Reference quality."),
+            new Entry("Float16", "onnx/model_fp16.onnx", 163234740L, "ba4527a874b42b21e35f468c10d326fdff3c7fc8cac1f85e9eb6c0dfc35c334a", "Half size. Experimental import."),
+            new Entry("Uint8", "onnx/model_quantized.onnx", 92361116L, "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478", "Smallest. Experimental import."),
+        };
+
+        /// <summary>English voices (af/am = US, bf/bm = British).</summary>
+        public static readonly Entry[] EnglishVoices =
+        {
+            new Entry("af_alloy", "voices/af_alloy.bin", 522240L, "c4a6b876047fd7fb472edf4ebd63cfac7c3b958a7cae7c106e8f038ca6308c45", "Alloy (US female)"),
+            new Entry("af_aoede", "voices/af_aoede.bin", 522240L, "4a004c33430762e2461eedb2013fad808ef4ab3121f5300f554476caf58d8361", "Aoede (US female)"),
+            new Entry("af_bella", "voices/af_bella.bin", 522240L, "f69d836209b78eb8c66e75e3cda491e26ea838a3674257e9d4e5703cbaf55c8b", "Bella (US female)"),
+            new Entry("af_heart", "voices/af_heart.bin", 522240L, "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b", "Heart (US female)"),
+            new Entry("af_jessica", "voices/af_jessica.bin", 522240L, "a240a5e3c15b43563d6e923bdca8ef5613a23471d9b77653694012435df23bd8", "Jessica (US female)"),
+            new Entry("af_kore", "voices/af_kore.bin", 522240L, "9be5221b6a941c04b561959b8ff0b06e809444dcc4ab7e75a7b23606f691819e", "Kore (US female)"),
+            new Entry("af_nicole", "voices/af_nicole.bin", 522240L, "cd2191ab31b914ed7b318416b0e4440fdf392ddad9106a060819aa600a64f59a", "Nicole (US female)"),
+            new Entry("af_nova", "voices/af_nova.bin", 522240L, "18778272caa0d0eebaea251c35fd635f038434f9eee5e691d02a174bd328414f", "Nova (US female)"),
+            new Entry("af_river", "voices/af_river.bin", 522240L, "00a2bcf82b1d86e8f19902ede58c65ccf6c0e43b44b7d74fad54e5d8933c9c30", "River (US female)"),
+            new Entry("af_sarah", "voices/af_sarah.bin", 522240L, "4409fbc125afabacc615d94db5398d847006a737b0247d6892b7a9a0007a2f0a", "Sarah (US female)"),
+            new Entry("af_sky", "voices/af_sky.bin", 522240L, "4435255c9744f3f31659e0d714ab7689bf65d9e77ec1cce060f083912614f0b9", "Sky (US female)"),
+            new Entry("am_adam", "voices/am_adam.bin", 522240L, "162b035ed91cfc48b6046982184c645f72edcdd1b82843347f605d7bf7b15716", "Adam (US male)"),
+            new Entry("am_echo", "voices/am_echo.bin", 522240L, "3968b92c3c4cd1c4416dbded36c13eaa388a90d5788d02a13e4d781f5f8cf3c3", "Echo (US male)"),
+            new Entry("am_eric", "voices/am_eric.bin", 522240L, "e8b5be17edd1e3636901ce7598baafe2dc8dd8ff707a0c23bf9e461add7e2832", "Eric (US male)"),
+            new Entry("am_fenrir", "voices/am_fenrir.bin", 522240L, "c27989f741f7ee34d273a39d8a595cc0837d35f5ced9a29b7cc162614616df43", "Fenrir (US male)"),
+            new Entry("am_liam", "voices/am_liam.bin", 522240L, "52403be32fd047c6a44517cb0bcd6b134f2a18baa73e70ef41651e0eab921ade", "Liam (US male)"),
+            new Entry("am_michael", "voices/am_michael.bin", 522240L, "1d1f21dd8da39c30705cd4c75d039d265e9bc4a2a93ed09bc9e1b1225eb95ba1", "Michael (US male)"),
+            new Entry("am_onyx", "voices/am_onyx.bin", 522240L, "da5d135b424164916d75a68ffb4c2abce3d7d5ccc82dd1ee6cf447ce286145e6", "Onyx (US male)"),
+            new Entry("am_puck", "voices/am_puck.bin", 522240L, "fcf73c989033e9233e0b98713eca600c8c74dcc1614b37009d5450ff4a2274a0", "Puck (US male)"),
+            new Entry("am_santa", "voices/am_santa.bin", 522240L, "61150cf726ab6c5ed7a99f90a304f91f5a72c00c592e89ec94e5df11c319227a", "Santa (US male)"),
+            new Entry("bf_alice", "voices/bf_alice.bin", 522240L, "08afa6ba24da61ea5e8efa139e5aadc938d83f0a6da5a900adaf763ac1da5573", "Alice (British female)"),
+            new Entry("bf_emma", "voices/bf_emma.bin", 522240L, "669fe0647f9dd04fcab92f1439a40eeb4c8b4ab1f82e4996fe3d918ce4a63b73", "Emma (British female)"),
+            new Entry("bf_isabella", "voices/bf_isabella.bin", 522240L, "3754352c4aaa46d17f27654ab7518d65b62ad6163a0f55a5f4330c2da2c4e94f", "Isabella (British female)"),
+            new Entry("bf_lily", "voices/bf_lily.bin", 522240L, "5e0ee32ebe64a467124976b14e69590746f1c4ce41a12b587a50c862edfea335", "Lily (British female)"),
+            new Entry("bm_daniel", "voices/bm_daniel.bin", 522240L, "6b3194bbceffb746733cbc22c8f593dd44e401a71d53895a2dca891bc595a1e8", "Daniel (British male)"),
+            new Entry("bm_fable", "voices/bm_fable.bin", 522240L, "f889083196807b4adb15e9204252165f503b8d33d3982e681c52443c49d798f1", "Fable (British male)"),
+            new Entry("bm_george", "voices/bm_george.bin", 522240L, "c4b235a4c1f2cd3b939fed08b899ce9385638b763f7b73a59616c4fc9bd6c9bc", "George (British male)"),
+            new Entry("bm_lewis", "voices/bm_lewis.bin", 522240L, "b8f671cef828c30e66fdf0b0756a76bba58f6bb3398cbbf27058642acbcedb97", "Lewis (British male)"),
+        };
+    }
+}

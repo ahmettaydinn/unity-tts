@@ -23,5 +23,16 @@
     "name": "Ahmet Aydin",
     "url": "https://github.com/ahmettaydinn"
   },
-  "samples": []
+  "samples": [
+    {
+      "displayName": "Basic Speech",
+      "description": "One component, one line: the minimal setup to make a character speak.",
+      "path": "Samples~/BasicSpeech"
+    },
+    {
+      "displayName": "Dialogue Characters",
+      "description": "Two characters with distinct voices holding a queued conversation, with interrupt/barge-in.",
+      "path": "Samples~/DialogueCharacters"
+    }
+  ]
 }
