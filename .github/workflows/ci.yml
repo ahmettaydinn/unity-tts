@@ -37,13 +37,32 @@ jobs:
             exit 1
           fi
 
+  license-check:
+    name: Unity license configured?
+    runs-on: ubuntu-latest
+    outputs:
+      has-license: ${{ steps.check.outputs.has }}
+    steps:
+      - id: check
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        run: |
+          if [ -n "$UNITY_LICENSE" ] || [ -n "$UNITY_EMAIL" ]; then
+            echo "has=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Unity test jobs skipped — add UNITY_LICENSE (or UNITY_EMAIL + UNITY_PASSWORD) repo secrets to enable them. See https://game.ci/docs/github/activation"
+          fi
+
   test:
     name: Unity ${{ matrix.testMode }} tests
     runs-on: ubuntu-latest
-    # Runs only once Unity license secrets are configured in the repo settings:
+    needs: license-check
+    # Skips cleanly until Unity license secrets are configured in repo settings:
     #   UNITY_LICENSE (contents of a .ulf) or UNITY_EMAIL + UNITY_PASSWORD.
     # See https://game.ci/docs/github/activation
-    if: ${{ github.repository_owner != '' }}
+    if: ${{ needs.license-check.outputs.has-license == 'true' }}
     strategy:
       fail-fast: false
       matrix:
