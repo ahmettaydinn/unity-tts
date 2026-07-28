@@ -8,6 +8,30 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Phase 4, hardening & performance:
+  - Local weight quantization (`ModelQuantizerUtil` + Model Manager buttons):
+    Uint8-weights .sentis is the shipping recommendation — 108 MB (vs 310 MB fp32),
+    identical output and speed, less than half the GPU memory.
+  - `TTSSettings.frameBudgetMs`: frame-budgeted layer-by-layer scheduling, with
+    worst-stall instrumentation on `TTSEngine`; documented honest limits (individual
+    heavy layers still stall 150–650 ms).
+  - Benchmark matrix runner (`LocalTTS/Spike/Run Benchmark Matrix`) and a standalone
+    player smoke-test build (`BuildSmoke`), verified end-to-end on macOS (Mono).
+  - Domain-reload safety: provider statics reset via RuntimeInitializeOnLoadMethod.
+
+### Removed
+
+- Float16 and Uint8 ONNX downloads from the catalog: fp16 ONNX measured at RTF ~35
+  on CPU (unusable); pre-quantized uint8 ONNX uses operators Inference Engine cannot
+  import (MatMulInteger, ConvInteger, DynamicQuantizeLSTM…). Local weight
+  quantization replaces both.
+
+### Fixed
+
+- Scene generators now assign asset references via reflection:
+  `SerializedObject.objectReferenceValue` silently drops asset references in
+  batch mode (observed on Unity 6000.5.5f1).
+
 - Phase 3, package UX:
   - `TTSVoice` ScriptableObject voices; **LocalTTS → Model Manager** downloads the
     model (3 quantization variants) and 29 English voices with pinned SHA-256

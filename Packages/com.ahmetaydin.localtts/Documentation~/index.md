@@ -44,19 +44,35 @@ audioSource.PlayOneShot(result.ToAudioClip());
 **LocalTTS → Voice Preview** auditions any downloaded voice from the editor, no play
 mode needed.
 
-## How big is this at runtime?
+## How big is this at runtime? (measured, Apple Silicon, Inference Engine 2.6)
 
-| Item | Disk | Notes |
-|---|---|---|
-| Model (Float32) | 310 MB | Verified default |
-| Model (Float16) | 156 MB | Experimental import |
-| Model (Uint8) | 88 MB | Experimental import |
-| Each voice | 0.5 MB | Ship as many as you like |
-| Lexicon (in package) | 1.3 MB | Decompresses to ~25 MB dictionary in memory |
-| Engine RAM overhead | roughly model size + working buffers | Measured properly in Phase 4 |
+| Variant | Disk | Synth 5.2 s line (CPU / GPU) | Memory Δ (CPU / GPU) | Quality |
+|---|---|---|---|---|
+| Float32 ONNX | 310 MB | 636 ms / 384 ms | +410 / +360 MB | reference |
+| Weights-Float16 .sentis | 175 MB | 755 ms / 393 ms | +479 / +218 MB | identical |
+| **Weights-Uint8 .sentis** ← recommended | **108 MB** | 689 ms / 391 ms | +414 / **+158 MB** | identical |
 
-Performance on Apple Silicon (fp32): CPU synthesis ≈ 7× faster than real time;
-GPU ≈ 14×. Engine cold start ≈ 3 s (lexicon parse + warmup synth).
+Plus per voice 0.5 MB, lexicon 1.3 MB on disk (~25 MB dictionary in memory).
+Engine cold start ≈ 0.3–3 s (lexicon parse + warmup synth; GPU shader compilation
+adds ~19 s once per machine, absorbed by the warmup voice).
+
+Create the quantized variants with one click in **LocalTTS → Model Manager** (they are
+produced locally from the Float32 download — the pre-quantized ONNX files on Hugging
+Face use operators Inference Engine cannot import, and fp16 ONNX runs ~35× slower
+than real time; both are deliberately unsupported). A standalone player build using
+the Weights-Uint8 model is exercised by the repo's smoke test.
+
+## Frame-time honesty
+
+`TTSSettings.frameBudgetMs` (default 4) spreads model scheduling across frames, but
+Kokoro contains individual layers (LSTM/vocoder) that block **150–650 ms in a single
+step** — a hard floor that layer-level yielding cannot split. Practical guidance:
+
+- Synthesize during loading screens, dialogue-open moments, or scene transitions —
+  `CharacterVoice` queues lines, so request speech a beat before it must play.
+- The GPU backend has the smaller stalls (~150–390 ms) and 1.7× faster synthesis.
+- Fully hitch-free synthesis during hot gameplay is future work (job-thread or
+  command-buffer execution).
 
 ## Current limitations
 
@@ -65,3 +81,4 @@ GPU ≈ 14×. Engine cold start ≈ 3 s (lexicon parse + warmup synth).
 - Unknown words are spelled letter-by-letter — add pronunciation overrides for
   invented names.
 - One synthesis at a time per engine (requests queue; latency adds up under load).
+- Main-thread stalls of 150–650 ms during synthesis (see above).

@@ -26,9 +26,12 @@ public static class CreateSpikeScene
         speaker.AddComponent<AudioSource>();
         var speak = speaker.AddComponent<SpeakOnStart>();
 
-        var so = new SerializedObject(speak);
-        so.FindProperty("model").objectReferenceValue = model;
-        so.ApplyModifiedPropertiesWithoutUndo();
+        // Reflection, not SerializedObject: the latter drops asset refs in -batchmode.
+        typeof(SpeakOnStart)
+            .GetField("model", System.Reflection.BindingFlags.Instance |
+                               System.Reflection.BindingFlags.NonPublic)!
+            .SetValue(speak, model);
+        UnityEditor.EditorUtility.SetDirty(speak);
 
         EditorSceneManager.SaveScene(scene, ScenePath);
         Debug.Log($"Spike scene saved to {ScenePath}. Open it and press Play.");

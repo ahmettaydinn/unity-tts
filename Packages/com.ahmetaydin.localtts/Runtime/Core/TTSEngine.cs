@@ -154,6 +154,12 @@ namespace LocalTTS
             return new SynthesisResult(samples, new[] { phonemes });
         }
 
+        /// <summary>Worst single-frame scheduling stall of the most recent request, in ms.</summary>
+        public double LastMaxFrameStallMs { get; private set; }
+
+        /// <summary>Frames the most recent request spread its scheduling across.</summary>
+        public int LastScheduleFrames { get; private set; }
+
         private async Awaitable<float[]> RunModelAsync(string phonemes, KokoroVoice voice, float speed)
         {
             int[] ids = KokoroTokenizer.Encode(phonemes, out List<char> unknown);
@@ -167,7 +173,36 @@ namespace LocalTTS
                 new TensorShape(1, KokoroVoice.StyleDim), voice.GetStyle(ids.Length - 2));
             using var speedTensor = new Tensor<float>(new TensorShape(1), new[] { speed });
 
-            worker.Schedule(inputIds, style, speedTensor);
+            LastMaxFrameStallMs = 0;
+            LastScheduleFrames = 1;
+
+            if (settings.FrameBudgetMs > 0f)
+            {
+                // Dispatch the graph layer by layer, yielding to the next frame whenever
+                // this frame's scheduling budget is spent — no gameplay hitches.
+                var iterator = worker.ScheduleIterable(inputIds, style, speedTensor);
+                var frameTimer = System.Diagnostics.Stopwatch.StartNew();
+                while (iterator.MoveNext())
+                {
+                    if (frameTimer.Elapsed.TotalMilliseconds > settings.FrameBudgetMs)
+                    {
+                        LastMaxFrameStallMs = Math.Max(
+                            LastMaxFrameStallMs, frameTimer.Elapsed.TotalMilliseconds);
+                        await Awaitable.NextFrameAsync();
+                        LastScheduleFrames++;
+                        frameTimer.Restart();
+                    }
+                }
+
+                LastMaxFrameStallMs = Math.Max(
+                    LastMaxFrameStallMs, frameTimer.Elapsed.TotalMilliseconds);
+            }
+            else
+            {
+                var stallTimer = System.Diagnostics.Stopwatch.StartNew();
+                worker.Schedule(inputIds, style, speedTensor);
+                LastMaxFrameStallMs = stallTimer.Elapsed.TotalMilliseconds;
+            }
 
             using var output = await ((Tensor<float>)worker.PeekOutput()).ReadbackAndCloneAsync();
             return output.DownloadToArray();

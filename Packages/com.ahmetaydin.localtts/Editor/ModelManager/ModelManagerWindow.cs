@@ -58,6 +58,33 @@ namespace LocalTTS.Editor
             {
                 _ = DownloadModelAsync(entry, path);
             }
+
+            if (present)
+            {
+                DrawQuantizeButtons(path);
+            }
+        }
+
+        private void DrawQuantizeButtons(string float32Path)
+        {
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField(
+                "Smaller variants (weight-quantized .sentis, same speed):", EditorStyles.miniLabel);
+
+            using var row = new EditorGUILayout.HorizontalScope();
+            foreach (var type in new[]
+                     { Unity.InferenceEngine.QuantizationType.Float16,
+                       Unity.InferenceEngine.QuantizationType.Uint8 })
+            {
+                string qPath = ModelQuantizerUtil.QuantizedAssetPath(type);
+                bool exists = File.Exists(Path.GetFullPath(qPath));
+                if (GUILayout.Button(exists ? $"{type} ✓ (rebuild)" : $"Create {type}"))
+                {
+                    var src = AssetDatabase.LoadAssetAtPath<Unity.InferenceEngine.ModelAsset>(float32Path);
+                    ModelQuantizerUtil.CreateQuantizedCopy(src, type);
+                    status = $"Quantized copy ready: {qPath}";
+                }
+            }
         }
 
         private void DrawVoiceSection()

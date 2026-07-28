@@ -7,10 +7,14 @@ namespace LocalTTS.Tests
     public class KokoroCatalogTests
     {
         [Test]
-        public void Catalog_CoversAllQuantizations()
+        public void Catalog_OffersOnlyFloat32Download()
         {
+            // Deliberate: fp16 ONNX measured at RTF ~35 on CPU (unusable), and the
+            // pre-quantized uint8 ONNX uses operators Inference Engine cannot import
+            // (MatMulInteger, ConvInteger, DynamicQuantizeLSTM…). Smaller variants are
+            // produced locally via ModelQuantizerUtil weight quantization instead.
             Assert.That(KokoroCatalog.Models.Select(m => m.Name),
-                Is.EquivalentTo(new[] { "Float32", "Float16", "Uint8" }));
+                Is.EquivalentTo(new[] { "Float32" }));
         }
 
         [Test]

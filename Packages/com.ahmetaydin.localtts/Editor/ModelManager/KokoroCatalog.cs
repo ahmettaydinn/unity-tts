@@ -30,8 +30,6 @@ namespace LocalTTS.Editor
         public static readonly Entry[] Models =
         {
             new Entry("Float32", "onnx/model.onnx", 325532232L, "8fbea51ea711f2af382e88c833d9e288c6dc82ce5e98421ea61c058ce21a34cb", "Verified. Reference quality."),
-            new Entry("Float16", "onnx/model_fp16.onnx", 163234740L, "ba4527a874b42b21e35f468c10d326fdff3c7fc8cac1f85e9eb6c0dfc35c334a", "Half size. Experimental import."),
-            new Entry("Uint8", "onnx/model_quantized.onnx", 92361116L, "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478", "Smallest. Experimental import."),
         };
 
         /// <summary>English voices (af/am = US, bf/bm = British).</summary>

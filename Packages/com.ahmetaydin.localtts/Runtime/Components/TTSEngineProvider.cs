@@ -22,6 +22,16 @@ namespace LocalTTS
         private static TTSEngine sharedEngine;
         private static bool creating;
 
+        // Statics survive "Enter Play Mode without domain reload"; reset them explicitly.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            instance = null;
+            sharedEngine?.Dispose();
+            sharedEngine = null;
+            creating = false;
+        }
+
         private void Awake()
         {
             if (instance != null && instance != this)
