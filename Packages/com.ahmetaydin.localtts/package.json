@@ -1,0 +1,27 @@
+{
+  "name": "com.ahmetaydin.localtts",
+  "version": "0.1.0",
+  "displayName": "Local TTS",
+  "description": "Fully local, on-device text-to-speech for game characters. Kokoro-82M running on Unity Inference Engine — no cloud, no API keys, license-clean for commercial games.",
+  "unity": "6000.0",
+  "documentationUrl": "https://github.com/ahmettaydinn/unity-tts",
+  "changelogUrl": "https://github.com/ahmettaydinn/unity-tts/blob/main/Packages/com.ahmetaydin.localtts/CHANGELOG.md",
+  "licensesUrl": "https://github.com/ahmettaydinn/unity-tts/blob/main/Packages/com.ahmetaydin.localtts/LICENSE.md",
+  "dependencies": {
+    "com.unity.ai.inference": "2.6.1"
+  },
+  "keywords": [
+    "tts",
+    "text-to-speech",
+    "voice",
+    "audio",
+    "dialogue",
+    "on-device",
+    "offline"
+  ],
+  "author": {
+    "name": "Ahmet Aydin",
+    "url": "https://github.com/ahmettaydinn"
+  },
+  "samples": []
+}

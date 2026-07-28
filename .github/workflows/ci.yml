@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  hygiene:
+    name: Repo hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check line endings (no CRLF in tracked text files)
+        run: |
+          set -euo pipefail
+          bad=$(git ls-files -z | xargs -0 grep -Il $'\r' 2>/dev/null || true)
+          if [ -n "$bad" ]; then
+            echo "CRLF line endings found in:"
+            echo "$bad"
+            exit 1
+          fi
+
+      - name: Validate JSON manifests (package.json, asmdefs, manifest.json)
+        run: |
+          set -euo pipefail
+          find Packages -name '*.json' -o -name '*.asmdef' | while read -r f; do
+            python3 -m json.tool "$f" > /dev/null || { echo "Invalid JSON: $f"; exit 1; }
+          done
+
+      - name: Check no model weights committed
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -E '\.(onnx|sentis)$'; then
+            echo "Model weights must not be committed — the editor ModelDownloader fetches them."
+            exit 1
+          fi
+
+  test:
+    name: Unity ${{ matrix.testMode }} tests
+    runs-on: ubuntu-latest
+    # Runs only once Unity license secrets are configured in the repo settings:
+    #   UNITY_LICENSE (contents of a .ulf) or UNITY_EMAIL + UNITY_PASSWORD.
+    # See https://game.ci/docs/github/activation
+    if: ${{ github.repository_owner != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        testMode: [editmode, playmode]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ matrix.testMode }}-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: |
+            Library-${{ matrix.testMode }}-
+            Library-
+
+      - name: Run ${{ matrix.testMode }} tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: ${{ matrix.testMode }}
+          # Package tests are exposed via "testables" in Packages/manifest.json.
+          checkName: ${{ matrix.testMode }} results
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.testMode }}
+          path: artifacts
+
+  # TODO(Phase 4): add a windows-latest job (Metal-vs-DX12 parity is checked locally
+  # until then) and IL2CPP build smoke tests for both desktop platforms.
