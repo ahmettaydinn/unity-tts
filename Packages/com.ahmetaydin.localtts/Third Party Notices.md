@@ -9,17 +9,13 @@ the license(s) indicated below.
 - License: Apache License 2.0
 - Includes the released voice style embeddings distributed with the model.
 
-## Misaki (G2P reference data)
+## Misaki (G2P lexicon data)
 
-- Source: https://github.com/hexgrad/misaki
+- Source: https://github.com/hexgrad/misaki (us_gold.json + us_silver.json)
 - License: Apache License 2.0
-- Used as: lexicon *data* source for the C# English G2P. No Misaki code is included.
+- Used as: data source for the packed English lexicon
+  (`Runtime/Resources/LocalTTS/lexicon-en-us.bytes`). No Misaki code is included.
 - Note: this package deliberately does NOT use or link espeak-ng (GPL-3.0).
-
-## CMU Pronouncing Dictionary (lexicon data)
-
-- Source: http://www.speech.cs.cmu.edu/cgi-bin/cmudict
-- License: BSD-2-Clause
 
 ## Unity Inference Engine (com.unity.ai.inference)
 

@@ -1,27 +1,47 @@
 # unity-tts
 
-Fully local, on-device text-to-speech for Unity game characters —
-[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) on Unity Inference Engine.
+**Fully local, on-device text-to-speech for Unity game characters** —
+[Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) running on Unity Inference
+Engine. No cloud, no API keys, license-clean for commercial games.
 
-- **The package** lives in [`Packages/com.ahmetaydin.localtts/`](Packages/com.ahmetaydin.localtts/)
-  (see its [README](Packages/com.ahmetaydin.localtts/README.md)).
-- **The roadmap** is in [PLAN.md](PLAN.md). Current milestone: Phase 1 (ONNX inference spike).
-- The repo root is the Unity host project used to develop and test the embedded package.
+🎧 **Hear it** (synthesized entirely inside Unity, CPU backend):
+[dialogue demo](media/demo-dialogue.wav) · [pangram demo](media/demo-pangram.wav)
 
-## Working on this repo
+> *"Dr. Smith paid $1,499.99 for the 3rd GPU! Was it worth it? The dragon's lair
+> lies 40 miles north. Good luck, traveler."* — plain text in, that audio out.
 
-1. Install **Unity 6 LTS (6000.0.x)** via Unity Hub, then open the repo root as a project.
-   If Hub offers a slightly newer 6000.0 patch than `ProjectSettings/ProjectVersion.txt`,
-   accepting the upgrade is fine.
-2. Install Git LFS once per machine (audio test fixtures): `brew install git-lfs` /
-   `winget install GitHub.GitLFS`, then `git lfs install`.
-3. Package tests appear in **Window ▸ General ▸ Test Runner** (both EditMode and PlayMode).
+## The package
 
-Model weights are never committed — they are fetched by the editor ModelDownloader (Phase 3).
+Lives in [`Packages/com.ahmetaydin.localtts/`](Packages/com.ahmetaydin.localtts/) —
+see its [README](Packages/com.ahmetaydin.localtts/README.md) for features and
+quickstart, and [Documentation~](Packages/com.ahmetaydin.localtts/Documentation~/index.md)
+for the full docs. Install into any Unity 6 project via Package Manager git URL:
 
-## CI
+```
+https://github.com/ahmettaydinn/unity-tts.git?path=/Packages/com.ahmetaydin.localtts
+```
 
-GitHub Actions runs repo hygiene checks on every push. Unity test jobs (GameCI) activate once
-Unity license secrets are added to the repo — see
-[game.ci/docs/github/activation](https://game.ci/docs/github/activation), then set
-`UNITY_LICENSE` (or `UNITY_EMAIL` + `UNITY_PASSWORD`) in repo settings.
+**Highlights**: 28 voices as drag-and-drop assets · per-character speech queues with
+barge-in · automatic text normalization ($1,499.99 → words) · 108 MB shippable model ·
+CPU ~7× / GPU ~13× faster than real time · MIT + Apache-2.0, no GPL.
+
+## This repository
+
+The repo root is the Unity host project used to develop and test the embedded package
+([PLAN.md](PLAN.md) has the roadmap; phases 0–5 complete).
+
+### Working on it
+
+1. Unity 6 (6000.x) via Unity Hub; open the repo root as a project.
+2. `git lfs install` once per machine.
+3. **LocalTTS → Model Manager** to fetch the model (weights are never committed).
+4. Tests: **Window → General → Test Runner** (or CI headless — see
+   [.github/workflows/ci.yml](.github/workflows/ci.yml)).
+5. Dev utilities live under the **LocalTTS → Spike** menu: benchmark matrix,
+   pipeline runners, smoke-test player build.
+
+### CI
+
+Repo-hygiene checks run on every push. Unity test jobs activate when license secrets
+are configured ([GameCI activation](https://game.ci/docs/github/activation)) —
+currently pending GameCI support for Unity's new entitlement licensing.
